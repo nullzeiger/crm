@@ -46,15 +46,19 @@ main (int argc, char *argv[])
   const char *mv = "cp %s %s";
   const char *tmp = "/tmp";
 
-  command = malloc (sizeof (strlen (mv) + strlen (filename) + strlen (tmp)) + 3);
+  command = malloc (strlen (mv) + strlen (filename) + strlen (tmp));
+  if (command == NULL)
+    {
+      error (EXIT_FAILURE, errno, "Memory allocation failed");
+    }
   
   sprintf (command, mv, filename, tmp);
 
   /* Open a pipe for reading the output of a command. */
   if ((fp = popen (command, "r")) == NULL)
     {
+      free (command);
       error (EXIT_FAILURE, errno, "Error move %s in /tmp", filename);
-      pclose (fp);
     }
 
   free (command);
