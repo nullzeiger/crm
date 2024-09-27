@@ -28,16 +28,16 @@ close $fh;
 # Call ./crm test.txt.
 system(@args) == 0 or die "system @args failed: $?";
 
-my $file_exists = 0;
+my $file_exists = 1;
 
 # Check if file test.txt exixts in /tmp directory.
 if (-e "/tmp/$args[1]") {
-  $file_exists = 1;
+  $file_exists = 0;
 }
 
 # Check if file test.txt exixts in root directory.
 if (-e "$args[1]") {
-  $file_exists = 0;
+  $file_exists = 1;
 }
 
 
@@ -49,11 +49,10 @@ my $test_3_arguments = system(@args_more);
 my $args_zero = './cmd';
 my $test_zero_argument = system($args_zero);
 
-
-# Exec test.
-ok($file_exists == 1, './crm remove.txt');
-ok($test_3_arguments != 1, './crm hello world');
-ok($test_zero_argument != 1, './crm');
+# Exec tests.
+ok($file_exists == 0, './crm remove.txt');
+ok($test_3_arguments != 0, './crm hello world');
+ok($test_zero_argument != 0, './crm');
 
 # test done.
 done_testing();
