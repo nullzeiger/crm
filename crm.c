@@ -43,16 +43,18 @@ main (int argc, char *argv[])
 
   char *command;
   FILE *fp=NULL;
-  const char *mv = "cp %s %s";
+  const char *cp = "cp %s %s";
   const char *tmp = "/tmp";
 
-  command = malloc (strlen (mv) + strlen (filename) + strlen (tmp));
+  /* Allocate memory for the command variable */
+  command = malloc (strlen (cp) + strlen (filename) + strlen (tmp));
   if (command == NULL)
     {
       error (EXIT_FAILURE, errno, "Memory allocation failed");
     }
-  
-  sprintf (command, mv, filename, tmp);
+
+  /* Composes a string command */
+  sprintf (command, cp, filename, tmp);
 
   /* Open a pipe for reading the output of a command. */
   if ((fp = popen (command, "r")) == NULL)
@@ -61,6 +63,7 @@ main (int argc, char *argv[])
       error (EXIT_FAILURE, errno, "Error move %s in /tmp", filename);
     }
 
+  /* Deallocate memory for the command variable */
   free (command);
 
   /* Close the pipe associated with the file pointer fp. */
@@ -73,5 +76,6 @@ main (int argc, char *argv[])
     }
 
   printf ("File %s has been successfully deleted.\n", filename);
+
   return EXIT_SUCCESS;
 }
