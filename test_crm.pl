@@ -14,7 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-use Test::More;
+use strict;
+use warnings;
+
+use Test::More tests  => 3;
 
 my @args = qw(./crm test.txt);
 
@@ -37,8 +40,20 @@ if (-e "$args[1]") {
   $file_exists = 0;
 }
 
+
+# Test ./crm using more arguments
+my @args_more = qw(./crm hello world);
+my $test_3_arguments = system(@args_more);
+
+# Test ./crm using 0 argument
+my $args_zero = './cmd';
+my $test_zero_argument = system($args_zero);
+
+
 # Exec test.
-ok($file_exists, "pass");
+ok($file_exists == 1, './crm remove.txt');
+ok($test_3_arguments != 1, './crm hello world');
+ok($test_zero_argument != 1, './crm');
 
 # test done.
 done_testing();
