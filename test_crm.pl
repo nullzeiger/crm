@@ -51,8 +51,8 @@ my $test_zero_argument = system($args_zero);
 
 # Exec tests.
 ok($file_exists == 0, './crm remove.txt');
-ok($test_3_arguments != 0, './crm hello world');
-ok($test_zero_argument != 0, './crm');
+ok($test_3_arguments == 256, './crm hello world');
+ok($test_zero_argument == -1, './crm');
 
 # test done.
 done_testing();
