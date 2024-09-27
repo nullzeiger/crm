@@ -17,16 +17,17 @@
 use strict;
 use warnings;
 
+use English '-no_match_vars';
 use Test::More tests  => 3;
 
 my @args = qw(./crm test.txt);
 
 # Create file test.txt.
-open my $fh, '>', $args[1];
-close $fh;
+open my $fh, '>', $args[1] or die "Error create file: $CHILD_ERROR\n";
+close $fh or die "unable to close $CHILD_ERROR\n";
 
 # Call ./crm test.txt.
-system(@args) == 0 or die "system @args failed: $?";
+system(@args) == 0 or die "system @args failed: $CHILD_ERROR\n";
 
 my $file_exists = 1;
 
@@ -43,16 +44,21 @@ if (-e "$args[1]") {
 
 # Test ./crm using more arguments
 my @args_more = qw(./crm hello world);
-my $test_3_arguments = system(@args_more);
+my $test_3_arguments = system @args_more;
 
 # Test ./crm using 0 argument
 my $args_zero = './cmd';
-my $test_zero_argument = system($args_zero);
+my $test_zero_argument = system $args_zero;
+
+use constant {
+  THFSERROR => 256,
+  NEGATIVEERROR => -1,
+};
 
 # Exec tests.
 ok($file_exists == 0, './crm remove.txt');
-ok($test_3_arguments == 256, './crm hello world');
-ok($test_zero_argument == -1, './crm');
+ok($test_3_arguments == THFSERROR, './crm hello world');
+ok($test_zero_argument == NEGATIVEERROR, './crm');
 
 # test done.
 done_testing();
