@@ -19,7 +19,7 @@ clean: crm
 	rm crm
 
 test:
-	@python3 test_crm.py
+	@perl test_crm.pl
 
 # for emacs flymake
 .PHONY:
