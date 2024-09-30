@@ -18,9 +18,20 @@
 #ifndef CRM_H
 #define CRM_H
 
-/* Copy file in root to /tmp directory. */
+/*
+ * Copies a file from the specified source to the `/tmp` directory.
+ *
+ * @param filename The name of the source file.
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on error.
+ */
 int copy (const char *filename);
-/* Delete file in root directory. */
+
+/*
+ * Deletes the specified file.
+ *
+ * @param filename The name of the file to delete.
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on error.
+ */
 int delete (const char *filename);
 
 #endif

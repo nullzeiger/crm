@@ -29,7 +29,7 @@ main (int argc, char *argv[])
   /* Exactly two arguments. */
   if (argc != 2)
     {
-      error (EXIT_FAILURE, errno, "Usage: %s <filename>", "crm");
+      error (EXIT_FAILURE, 0, "Usage: %s <filename>", "crm");
     }
 
   const char *filename = argv[1];
