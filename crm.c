@@ -15,67 +15,66 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "crm.h"
+#include <errno.h>
+#include <error.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <error.h>
+#include <sys/stat.h>
+#include <sys/sendfile.h>
 
 int
-main (int argc, char *argv[])
+copy (const char *filename)
 {
-  /* Exactly two arguments. */
-  if (argc != 2)
+  /* Set path source and destination. */
+  char src_path[256], dest_path[256];
+  snprintf (src_path, sizeof (src_path), "%s", filename);	/* root */
+  snprintf (dest_path, sizeof (dest_path), "/tmp/%s", filename);
+
+  /* Open the source file for reading. */
+  int src_fd = open (src_path, O_RDONLY);
+  if (src_fd == -1)
     {
-      error (EXIT_FAILURE, errno, "Usage: %s <filename>", "crm");
+      error (EXIT_FAILURE, errno, "Error opening source file %s", filename);
     }
 
-  const char *filename = argv[1];
-
-  /*  Checks the file access permissions for the specified file filename.
-      The F_OK flag indicates that only the existence of the file
-      is being checked, without verifying any permissions. */
-  if (access (filename, F_OK) == -1)
+  /* Open the destination file for writing. */
+  int dest_fd = open (dest_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (dest_fd == -1)
     {
-      error (EXIT_FAILURE, errno, "File %s does not exist", filename);
+      error (EXIT_FAILURE, errno, "Error opening destination file %s",
+	     filename);
     }
 
-  char *command;
-  FILE *fp=NULL;
-  const char *cp = "cp %s %s";
-  const char *tmp = "/tmp";
+  /* Get the size of the source file. */
+  struct stat stat_buf;
+  fstat (src_fd, &stat_buf);
 
-  /* Allocate memory for the command variable */
-  command = malloc (strlen (cp) + strlen (filename) + strlen (tmp));
-  if (command == NULL)
+  /* Copy the entire file in one system call. */
+  ssize_t bytes_sent = sendfile (dest_fd, src_fd, NULL, stat_buf.st_size);
+  if (bytes_sent == -1)
     {
-      error (EXIT_FAILURE, errno, "Memory allocation failed");
+      close (src_fd);
+      close (dest_fd);
+      error (EXIT_FAILURE, errno, "Error copying file %s", filename);
     }
 
-  /* Composes a string command */
-  sprintf (command, cp, filename, tmp);
+  close (src_fd);
+  close (dest_fd);
 
-  /* Open a pipe for reading the output of a command. */
-  if ((fp = popen (command, "r")) == NULL)
-    {
-      free (command);
-      error (EXIT_FAILURE, errno, "Error move %s in /tmp", filename);
-    }
+  return EXIT_SUCCESS;
+}
 
-  /* Deallocate memory for the command variable */
-  free (command);
-
-  /* Close the pipe associated with the file pointer fp. */
-  pclose (fp);
-
-  /* Delete a specified file. */
+int
+delete (const char *filename)
+{
+  /* Call the unlink function to remove the specified file. */
   if (unlink (filename) == -1)
     {
       error (EXIT_FAILURE, errno, "Error deleting file %s", filename);
     }
-
-  printf ("File %s has been successfully deleted.\n", filename);
 
   return EXIT_SUCCESS;
 }

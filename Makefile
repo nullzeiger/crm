@@ -12,8 +12,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-crm: crm.c
-	gcc -Wall -Werror -ggdb -std=gnu11 -o crm crm.c
+crm: crm.c main.c
+	gcc -Wall -Werror -ggdb -std=gnu11 -o crm crm.c main.c
 
 clean: crm
 	rm crm

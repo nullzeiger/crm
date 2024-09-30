@@ -20,7 +20,7 @@ use warnings;
 use English '-no_match_vars';
 use Test::More tests  => 3;
 
-# Tests whether the file was copied to the /tmp directory and removed to the root
+# Tests whether the file was copied to the /tmp directory and removed to the root.
 sub file_removal {
   my ( $command, $argument ) = @_;
 
@@ -46,29 +46,27 @@ sub file_removal {
   $file_exists
 }
 
-# Test how the program works with one more argument than expected
+# Test how the program works with one more argument than expected.
 sub using_more_arguments {
-  my @args = @_;
-  system @args;
+  system @_;
 }
 
-# Test the program's operation with zero arguments
+# Test the program's operation with zero arguments.
 sub using_zero_argument {
-  my ( $command ) = @_;
-  system $command;
+  system shift;
 }
 
-# To get the actual exit value, shift right by eight
+# To get the actual exit value, shift right by eight.
 sub exit_code {
   my $value = shift;
   $value >> 8;
 }
 
-# Run all tests
+# Run all tests.
 sub exec_tests {
   my @args = qw ( ./crm test.txt more );
 
-  ok(exit_code(file_removal @args) == 0, './crm remove.txt');
+  ok((file_removal @args) == 1, './crm test.txt');
   ok(exit_code(using_more_arguments @args) == 1, './crm hello world');
   ok(exit_code(using_zero_argument @args) == 1, './crm');
 
@@ -76,5 +74,5 @@ sub exec_tests {
   done_testing;
 }
 
-# Exec all tests
+# Exec all tests.
 exec_tests
