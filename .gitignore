@@ -54,3 +54,6 @@ dkms.conf
 
 # Tag file
 TAGS
+
+# Python venv
+venv
