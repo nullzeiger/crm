@@ -24,7 +24,7 @@
  * @param filename The name of the source file.
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on error.
  */
-int copy (const char *filename);
+int copy(const char *filename);
 
 /*
  * Deletes the specified file.
@@ -32,6 +32,6 @@ int copy (const char *filename);
  * @param filename The name of the file to delete.
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on error.
  */
-int delete (const char *filename);
+int delete(const char *filename);
 
 #endif

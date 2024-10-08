@@ -23,30 +23,28 @@
 #include <string.h>
 #include <error.h>
 
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  /* Exactly two arguments. */
-  if (argc != 2)
-    {
-      error (EXIT_FAILURE, 0, "Usage: %s <filename>", "crm");
-    }
+	/* Exactly two arguments. */
+	if (argc != 2) {
+		error(EXIT_FAILURE, 0, "Usage: %s <filename>", "crm");
+	}
 
-  const char *filename = argv[1];
+	const char *filename = argv[1];
 
-  /*  Checks the file access permissions for the specified file filename.
-     The F_OK flag indicates that only the existence of the file
-     is being checked, without verifying any permissions. */
-  if (access (filename, F_OK) == -1)
-    {
-      error (EXIT_FAILURE, errno, "File %s does not exist", filename);
-    }
+	/*  Checks the file access permissions for the specified file filename.
+	   The F_OK flag indicates that only the existence of the file
+	   is being checked, without verifying any permissions. */
+	if (access(filename, F_OK) == -1) {
+		error(EXIT_FAILURE, errno, "File %s does not exist",
+		      filename);
+	}
 
-  /* Copy and remove file. */
-  copy (filename);
-  delete (filename);
+	/* Copy and remove file. */
+	copy(filename);
+	delete(filename);
 
-  printf ("File %s has been successfully deleted.\n", filename);
+	printf("File %s has been successfully deleted.\n", filename);
 
-  return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

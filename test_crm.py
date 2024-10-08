@@ -14,15 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import os
 import subprocess
 import unittest
 
-
 # Define a test class for `./crm` program
 class TestCRM(unittest.TestCase):
-    
+
     # Test case for removing a file
     def test_file_removal(self):
         args = ['./crm', 'test.txt']
@@ -38,7 +36,7 @@ class TestCRM(unittest.TestCase):
 
         # Check if the file 'test.txt' still exists in the `/tmp` directory
         self.assertTrue(os.path.exists(f"/tmp/{args[1]}"))
-        
+
         # Check if the file 'test.txt' exists in the current directory (root directory)
         self.assertFalse(os.path.exists(args[1]))
 

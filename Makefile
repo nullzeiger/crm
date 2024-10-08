@@ -21,6 +21,9 @@ clean: crm
 test:
 	@python3 test_crm.py
 
+indent:
+	indent -kr -i8 crm.c crm.h main.c
+
 # for emacs flymake
 .PHONY:
 	check-syntax
