@@ -13,7 +13,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 crm: crm.c main.c
-	gcc -Wall -Werror -ggdb -fanalyzer -std=gnu11 -O2 -o crm crm.c main.c
+	gcc -Wall -Werror -ggdb -fanalyzer -O2 -o crm crm.c main.c
 
 clean:
 	rm crm
@@ -28,4 +28,4 @@ indent:
 .PHONY:
 	check-syntax
 check-syntax:
-	gcc -Wall -Werror -std=gnu11 -o /dev/null -S $(CHK_SOURCES) || true
+	gcc -Wall -Werror -o /dev/null -S $(CHK_SOURCES) || true

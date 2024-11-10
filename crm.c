@@ -25,7 +25,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/sendfile.h>
-
 int copy(const char *filename)
 {
 	/* Check if the provided filename is NULL. */
