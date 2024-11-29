@@ -12,11 +12,52 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-crm: crm.c main.c
-	gcc -Wall -Werror -ggdb -O2 -o crm crm.c main.c
+# Compiler settings
+CC = gcc
+CFLAGS = -Wall -Wextra -O2 -ggdb
 
+# Directories
+SRC_DIR = .
+OBJ_DIR = obj
+BIN_DIR = bin
+
+# Source files
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
+# Binary name
+TARGET = $(BIN_DIR)/crm
+
+# Phony targets
+.PHONY: all clean dirs
+
+# Default target
+all: dirs $(TARGET)
+
+# Create necessary directories
+dirs:
+	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
+
+# Link the program
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
+# Compile source files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean build files
 clean:
-	rm crm
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-test:
+# Install target (optional)
+install: all
+	install -m 755 $(TARGET) ~/.local/bin
+
+# Uninstall target (optional)
+uninstall: all
+	rm -rf ~/.local/$(TARGET)
+
+# Test using python script
+test: all
 	@python3 test_crm.py

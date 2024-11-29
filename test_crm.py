@@ -18,12 +18,12 @@ import os
 import subprocess
 import unittest
 
-# Define a test class for `./crm` program
+# Define a test class for `./bin/crm` program
 class TestCRM(unittest.TestCase):
 
     # Test case for removing a file
     def test_file_removal(self):
-        args = ['./crm', 'test.txt']
+        args = ['./bin/crm', 'test.txt']
 
         # Create file test.txt
         file = open(args[1], 'w')
@@ -43,7 +43,7 @@ class TestCRM(unittest.TestCase):
     # Test case for handling multiple arguments
     def test_more_arguments(self):
         # Define arguments with additional words
-        args = ['./crm', 'hello', 'world']
+        args = ['./bin/crm', 'hello', 'world']
 
         # Call the `./crm` program with these arguments
         test_more_arguments = subprocess.run(args)
@@ -54,7 +54,7 @@ class TestCRM(unittest.TestCase):
     # Test case for handling zero arguments
     def test_zero_argument(self):
         # Define arguments with no additional arguments
-        args = './crm'
+        args = './bin/crm'
 
         # Call the `./crm` program with these arguments
         test_zero_argument = subprocess.run(args)
