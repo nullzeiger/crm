@@ -13,19 +13,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 crm: crm.c main.c
-	gcc -Wall -Werror -ggdb -fanalyzer -O2 -o crm crm.c main.c
+	gcc -Wall -Werror -ggdb -O2 -o crm crm.c main.c
 
 clean:
 	rm crm
 
 test:
 	@python3 test_crm.py
-
-indent:
-	indent -kr -i8 crm.c crm.h main.c
-
-# for emacs flymake
-.PHONY:
-	check-syntax
-check-syntax:
-	gcc -Wall -Werror -o /dev/null -S $(CHK_SOURCES) || true
