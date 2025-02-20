@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2024 Ivan Guerreschi <ivan.guerreschi.dev@gmail.com>.
+# Copyright (C) 2025 Ivan Guerreschi <ivan.guerreschi.dev@gmail.com>.
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -23,7 +23,7 @@ class TestCRM(unittest.TestCase):
 
     # Test case for removing a file
     def test_file_removal(self):
-        args = ['./bin/crm', 'test.txt']
+        args = ['./crm', 'test.txt']
 
         # Create file test.txt
         file = open(args[1], 'w')
@@ -43,7 +43,7 @@ class TestCRM(unittest.TestCase):
     # Test case for handling multiple arguments
     def test_more_arguments(self):
         # Define arguments with additional words
-        args = ['./bin/crm', 'hello', 'world']
+        args = ['./crm', 'hello', 'world']
 
         # Call the `./crm` program with these arguments
         test_more_arguments = subprocess.run(args)
@@ -54,7 +54,7 @@ class TestCRM(unittest.TestCase):
     # Test case for handling zero arguments
     def test_zero_argument(self):
         # Define arguments with no additional arguments
-        args = './bin/crm'
+        args = './crm'
 
         # Call the `./crm` program with these arguments
         test_zero_argument = subprocess.run(args)

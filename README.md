@@ -42,7 +42,7 @@ make uninstall
 ## Usage
 
 ```bash
-./crm <file>
+./crm --help 
 ```
 
 Example:

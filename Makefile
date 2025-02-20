@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Ivan Guerreschi <ivan.guerreschi.dev@gmail.com>.
+# Copyright (C) 2025 Ivan Guerreschi <ivan.guerreschi.dev@gmail.com>.
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by	
 # the Free Software Foundation, either version 3 of the License, or
@@ -18,15 +18,13 @@ CFLAGS = -Wall -Wextra -O2 -ggdb
 
 # Directories
 SRC_DIR = .
-OBJ_DIR = obj
-BIN_DIR = bin
 
 # Source files
 SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:$(SRC_DIR)/%.c=%.o)
 
 # Binary name
-TARGET = $(BIN_DIR)/crm
+TARGET = crm
 
 # Phony targets
 .PHONY: all clean dirs
@@ -34,21 +32,17 @@ TARGET = $(BIN_DIR)/crm
 # Default target
 all: dirs $(TARGET)
 
-# Create necessary directories
-dirs:
-	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
-
 # Link the program
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
 # Compile source files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean build files
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -rf *.o $(TARGET)
 
 # Install target (optional)
 install: all
@@ -60,4 +54,4 @@ uninstall: all
 
 # Test using python script
 test: all
-	@python3 test_crm.py
+	@python3 crm_test.py

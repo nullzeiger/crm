@@ -25,116 +25,117 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/sendfile.h>
+
+#define MAX_PATH_LENGTH 4096
+#define DEFAULT_FILE_PERMISSIONS 0644
+
+/**
+ * Copies a file to /tmp directory.
+ *
+ * @param filename The name of the file to copy
+ * @return EXIT_SUCCESS on successful copy, otherwise exits with error
+ */
 int copy(const char *filename)
 {
-	/* Check if the provided filename is NULL. */
-	if (filename == NULL) {
-		error(EXIT_FAILURE, 0, "Filename is NULL");
-	}
+    /* Validate input parameters */
+    if (filename == NULL) {
+        error(EXIT_FAILURE, 0, "Filename is NULL");
+    }
 
-	/* Calculate the length needed to store the source file path. */
-	size_t src_len = strlen(filename) + 1;
-	/* Dynamically allocate memory to store the source path. */
-	char *src_path = malloc(src_len);
-	if (!src_path) {
-		error(EXIT_FAILURE, errno, "Memory allocation error");
-	}
+    /* Ensure filename isn't too long */
+    size_t filename_len = strlen(filename);
+    if (filename_len >= MAX_PATH_LENGTH - 6) {  /* 6 for "/tmp/" and null terminator */
+        error(EXIT_FAILURE, 0, "Filename too long");
+    }
 
-	/* Copy the filename to the source path buffer. */
-	snprintf(src_path, src_len, "%s", filename);
+    /* Prepare source path */
+    char src_path[MAX_PATH_LENGTH];
+    if (snprintf(src_path, MAX_PATH_LENGTH, "%s", filename) < 0) {
+        error(EXIT_FAILURE, 0, "Error creating source path string");
+    }
 
-	/* Open the source file for reading. */
-	int src_fd = open(src_path, O_RDONLY);
-	if (src_fd == -1) {
-		free(src_path);
-		src_path = NULL;
-		error(EXIT_FAILURE, errno, "Error opening source file %s",
-		      filename);
-	}
+    /* Prepare destination path */
+    char dest_path[MAX_PATH_LENGTH];
+    if (snprintf(dest_path, MAX_PATH_LENGTH, "/tmp/%s", filename) < 0) {
+        error(EXIT_FAILURE, 0, "Error creating destination path string");
+    }
 
-	/* Calculate the length needed for the destination path in the /tmp directory. */
-	size_t dest_len = strlen("/tmp/") + strlen(filename) + 1;
-	/* Dynamically allocate memory for the destination path. */
-	char *dest_path = malloc(dest_len);
-	if (!dest_path) {
-		free(src_path);
-		src_path = NULL;
-		close(src_fd);
-		src_fd = -1;
-		error(EXIT_FAILURE, errno, "Memory allocation error");
-	}
+    /* Open source file for reading */
+    int src_fd = open(src_path, O_RDONLY);
+    if (src_fd == -1) {
+        error(EXIT_FAILURE, errno, "Error opening source file '%s'", filename);
+    }
 
-	/* Construct the destination path in the /tmp directory. */
-	snprintf(dest_path, dest_len, "/tmp/%s", filename);
+    /* Open destination file for writing with appropriate permissions */
+    int dest_fd = open(dest_path, O_WRONLY | O_CREAT | O_TRUNC, DEFAULT_FILE_PERMISSIONS);
+    if (dest_fd == -1) {
+        close(src_fd);
+        error(EXIT_FAILURE, errno, "Error opening destination file '/tmp/%s'", filename);
+    }
 
-	/* Open the destination file for writing. */
-	int dest_fd = open(dest_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (dest_fd == -1) {
-		free(src_path);
-		src_path = NULL;
-		close(src_fd);
-		src_fd = -1;
-		error(EXIT_FAILURE, errno,
-		      "Error opening destination file %s", filename);
-	}
+    /* Get file information for sendfile */
+    struct stat stat_buf;
+    if (fstat(src_fd, &stat_buf) == -1) {
+        close(src_fd);
+        close(dest_fd);
+        error(EXIT_FAILURE, errno, "Error getting file status for '%s'", filename);
+    }
 
-	/* Get the size of the source file. */
-	struct stat stat_buf;
-	if (fstat(src_fd, &stat_buf) == -1) {
-		free(src_path);
-		src_path = NULL;
-		free(dest_path);
-		dest_path = NULL;
-		close(src_fd);
-		src_fd = -1;
-		close(dest_fd);
-		dest_fd = -1;
-		error(EXIT_FAILURE, errno,
-		      "Error getting file status for %s", filename);
-	}
+    /* Copy file contents using sendfile */
+    off_t offset = 0; /* Track current position in source file */
+    size_t remaining = stat_buf.st_size;
+    
+    while (remaining > 0) {
+        ssize_t bytes_sent = sendfile(dest_fd, src_fd, &offset, remaining);
+        
+        if (bytes_sent <= 0) {
+            if (errno == EINTR) {
+                /* Interrupted by signal, try again */
+                continue;
+            }
+            close(src_fd);
+            close(dest_fd);
+            error(EXIT_FAILURE, errno, "Error copying file '%s'", filename);
+        }
+        
+        remaining -= bytes_sent;
+    }
 
-	/* Copy the entire file content from source to destination using sendfile(). */
-	ssize_t bytes_sent =
-	    sendfile(dest_fd, src_fd, NULL, stat_buf.st_size);
-	if (bytes_sent == -1) {
-		free(src_path);
-		src_path = NULL;
-		free(dest_path);
-		dest_path = NULL;
-		close(src_fd);
-		src_fd = -1;
-		close(dest_fd);
-		dest_fd = -1;
-		error(EXIT_FAILURE, errno, "Error copying file %s",
-		      filename);
-	}
+    /* Close file descriptors */
+    if (close(src_fd) == -1) {
+        close(dest_fd); /* Try to close the other descriptor anyway */
+        error(EXIT_FAILURE, errno, "Error closing source file '%s'", filename);
+    }
 
+    if (close(dest_fd) == -1) {
+        error(EXIT_FAILURE, errno, "Error closing destination file '/tmp/%s'", filename);
+    }
 
-	/* Close the file descriptors */
-	if (close(src_fd) == -1) {
-		error(EXIT_FAILURE, errno, "Error closing source file %s",
-		      filename);
-	}
-
-	if (close(dest_fd) == -1) {
-		error(EXIT_FAILURE, errno,
-		      "Error closing destination file %s", filename);
-	}
-
-	/* Free dynamically allocated memory for source and destination paths. */
-	free(src_path);
-	free(dest_path);
-
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
+/**
+ * Deletes a file from the filesystem.
+ *
+ * @param filename The name of the file to delete
+ * @return EXIT_SUCCESS on successful deletion, otherwise exits with error
+ */
 int delete(const char *filename)
 {
-	/* Call the unlink function to remove the specified file. */
-	if (unlink(filename) == -1) {
-		error(EXIT_FAILURE, errno, "Error deleting file %s",
-		      filename);
-	}
+    /* Validate input parameters */
+    if (filename == NULL) {
+        error(EXIT_FAILURE, 0, "Filename is NULL");
+    }
+    
+    /* Check if file exists before attempting to delete it */
+    if (access(filename, F_OK) == -1) {
+        error(EXIT_FAILURE, errno, "File '%s' does not exist or is not accessible", filename);
+    }
 
-	return EXIT_SUCCESS;
+    /* Delete the file */
+    if (unlink(filename) == -1) {
+        error(EXIT_FAILURE, errno, "Error deleting file '%s'", filename);
+    }
+
+    return EXIT_SUCCESS;
 }
